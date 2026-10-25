@@ -1,4 +1,6 @@
-# CI/CD Tools and Practices Final Project - JavaScript/Node.js Version
+# CI/CD Tools and Practices Final Project Template
+
+## ci-cd-final-project
 
 This repository contains a Node.js/Express.js version of the counter service for the Final Project of the Coursera course **CI/CD Tools and Practices**.
 
@@ -28,3 +30,43 @@ This repository contains a Node.js/Express.js version of the counter service for
 1. **Install dependencies:**
    ```bash
    npm install
+   ```
+
+2. **Run the application:**
+   ```bash
+   npm start
+   ```
+
+3. **Run tests:**
+   ```bash
+   npm test
+   ```
+
+4. **Run linting:**
+   ```bash
+   npm run lint
+   ```
+
+## CI/CD Pipeline
+
+This project uses:
+- **GitHub Actions** for Continuous Integration (CI)
+- **OpenShift Pipelines (Tekton)** for Continuous Deployment (CD)
+
+### GitHub Actions Workflow
+The CI workflow (`.github/workflows/workflow.yml`) runs on every push and pull request to `main`:
+- Checkout code
+- Setup Node.js 20
+- Install dependencies (`npm ci`)
+- Lint with ESLint (`npm run lint`)
+- Run unit tests with Jest (`npm test`)
+
+### Tekton Tasks
+The CD pipeline (`.tekton/tasks.yml`) includes:
+- **cleanup** – Cleans the workspace before each run
+- **eslint** – Runs ESLint linting on the source code
+- **jest-test** – Runs Jest unit tests
+
+## License
+
+This project is licensed under the Apache License 2.0.
