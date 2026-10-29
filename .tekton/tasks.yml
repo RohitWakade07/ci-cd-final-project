@@ -38,7 +38,7 @@ spec:
     - name: args
       description: Arguments to pass to ESLint
       type: string
-      default: "src/ tests/ --ext *.js"
+      default: ""
   steps:
     - name: lint
       image: node:20-alpine

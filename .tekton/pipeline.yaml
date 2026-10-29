@@ -1,0 +1,73 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: cd-pipeline
+spec:
+  workspaces:
+    - name: output
+  params:
+    - name: repo-url
+      type: string
+      default: https://github.com/RohitWakade07/ci-cd-final-project.git
+    - name: branch
+      type: string
+      default: main
+    - name: app-name
+      type: string
+      default: counter-service
+    - name: build-image
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/sn-labs-rohitwakade2/counter-service:latest
+  tasks:
+    - name: cleanup
+      workspaces:
+        - name: source
+          workspace: output
+      taskRef:
+        name: cleanup
+    - name: git-clone
+      runAfter: [cleanup]
+      workspaces:
+        - name: output
+          workspace: output
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.branch)
+    - name: eslint
+      runAfter: [git-clone]
+      workspaces:
+        - name: source
+          workspace: output
+      taskRef:
+        name: eslint
+    - name: jest-test
+      runAfter: [eslint]
+      workspaces:
+        - name: source
+          workspace: output
+      taskRef:
+        name: jest-test
+    - name: buildah
+      runAfter: [jest-test]
+      workspaces:
+        - name: source
+          workspace: output
+      taskRef:
+        name: buildah
+        kind: ClusterTask
+      params:
+        - name: IMAGE
+          value: $(params.build-image)
+    - name: deploy
+      runAfter: [buildah]
+      taskRef:
+        name: openshift-client
+        kind: ClusterTask
+      params:
+        - name: SCRIPT
+          value: oc create deployment $(params.app-name) --image=$(params.build-image) --dry-run=client -o yaml | oc apply -f -
